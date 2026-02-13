@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Be My Valentine? 💕</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+            background: linear-gradient(135deg, #fef6fb 0%, #ffeef8 25%, #f5f3ff 50%, #e8f5e9 75%, #fff8e1 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow: hidden;
+            position: relative;
+            opacity: 0;
+            animation: fadeIn 1s ease-in forwards;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+            }
+
+            to {
+                opacity: 1;
+            }
+        }
+
+        /* Floating hearts background */
+        .heart-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .floating-heart {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0.3;
+            animation: float 15s infinite ease-in-out;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(100vh) rotate(0deg);
+                opacity: 0;
+            }
+
+            10% {
+                opacity: 0.3;
+            }
+
+            90% {
+                opacity: 0.3;
+            }
+
+            100% {
+                transform: translateY(-100px) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.95);
+            padding: 60px 50px;
+            border-radius: 40px;
+            box-shadow: 0 20px 60px rgba(230, 190, 255, 0.3);
+            text-align: center;
+            max-width: 500px;
+            position: relative;
+            z-index: 10;
+            border: 4px solid #e1bee7;
+        }
+
+        .bear-emoji {
+            font-size: 80px;
+            position: absolute;
+            top: -40px;
+            right: -40px;
+            z-index: 20;
+            animation: bounce 2s infinite;
+            filter: drop-shadow(0 4px 8px rgba(255, 182, 193, 0.4));
+        }
+
+        @keyframes bounce {
+
+            0%,
+            100% {
+                transform: translateY(0);
+            }
+
+            50% {
+                transform: translateY(-15px);
+            }
+        }
+
+        h1 {
+            color: #ec407a;
+            font-size: 36px;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(225, 190, 231, 0.4);
+        }
+
+        .message {
+            color: #d81b60;
+            font-size: 20px;
+            margin-bottom: 15px;
+            line-height: 1.6;
+        }
+
+        .button-container {
+            display: flex;
+            gap: 30px;
+            justify-content: center;
+            position: relative;
+            min-height: 80px;
+            align-items: center;
+        }
+
+        button {
+            font-family: 'Comic Sans MS', 'Chalkboard SE', 'Comic Neue', cursive;
+            font-size: 24px;
+            font-weight: bold;
+            padding: 18px 45px;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        #yesBtn {
+            background: linear-gradient(135deg, #f48fb1, #ec407a);
+            color: white;
+            position: relative;
+            display: none;
+            animation: fadeInScale 0.6s ease-out forwards;
+            box-shadow: 0 0 20px rgba(236, 64, 122, 0.4);
+        }
+
+        #yesBtn.show {
+            display: inline-block;
+            animation: fadeInScale 0.6s ease-out forwards, gentleGlow 2s ease-in-out infinite;
+        }
+
+        @keyframes gentleGlow {
+
+            0%,
+            100% {
+                box-shadow: 0 0 20px rgba(236, 64, 122, 0.4), 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+
+            50% {
+                box-shadow: 0 0 30px rgba(236, 64, 122, 0.6), 0 8px 20px rgba(0, 0, 0, 0.15);
+            }
+        }
+
+        @keyframes fadeInScale {
+            0% {
+                opacity: 0;
+                transform: scale(0.5);
+            }
+
+            100% {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        #yesBtn:hover {
+            transform: scale(1.1);
+            box-shadow: 0 12px 30px rgba(236, 64, 122, 0.5);
+        }
+
+        #yesBtn:active {
+            transform: scale(1.05);
+        }
+
+        #noBtn {
+            background: linear-gradient(135deg, #f8bbd0, #f48fb1);
+            color: #d81b60;
+            position: absolute;
+            transition: all 0.15s ease;
+        }
+
+        #noBtn:hover {
+            background: linear-gradient(135deg, #f48fb1, #f8bbd0);
+        }
+
+        #noBtn.shake {
+            animation: shake 0.3s ease-in-out;
+        }
+
+        @keyframes shake {
+
+            0%,
+            100% {
+                transform: translateX(0);
+            }
+
+            25% {
+                transform: translateX(-10px) rotate(-5deg);
+            }
+
+            75% {
+                transform: translateX(10px) rotate(5deg);
+            }
+        }
+
+        /* Success state */
+        .success-message {
+            display: none;
+            position: relative;
+        }
+
+        .success-message.show {
+            display: block;
+        }
+
+        /* Photo gallery slideshow */
+        .photo-gallery {
+            position: relative;
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 30px;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(236, 64, 122, 0.3);
+            border: 4px solid #f48fb1;
+        }
+
+        .photo-slide {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            transition: opacity 1s ease-in-out;
+        }
+
+        .photo-slide.active {
+            opacity: 1;
+        }
+
+        .photo-slide img,
+        .photo-slide video {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .celebration {
+            font-size: 50px;
+            margin-bottom: 20px;
+            animation: spin 1s ease-in-out;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: scale(0) rotate(0deg);
+            }
+
+            50% {
+                transform: scale(1.2) rotate(180deg);
+            }
+
+            100% {
+                transform: scale(1) rotate(360deg);
+            }
+        }
+
+        .success-text {
+            color: #ec407a;
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .love-message {
+            color: #d81b60;
+            font-size: 20px;
+        }
+
+        /* Confetti */
+        .confetti {
+            position: absolute;
+            width: 10px;
+            height: 10px;
+            background: #ff69b4;
+            animation: confetti-fall 3s ease-out forwards;
+        }
+
+        .mini-confetti {
+            position: absolute;
+            width: 8px;
+            height: 8px;
+            background: #ff69b4;
+            animation: mini-confetti-fall 1.5s ease-out forwards;
+        }
+
+        @keyframes confetti-fall {
+            to {
+                transform: translateY(100vh) rotate(720deg);
+                opacity: 0;
+            }
+        }
+
+        @keyframes mini-confetti-fall {
+            to {
+                transform: translateY(200px) translateX(var(--x-offset)) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        /* Playful dodge messages */
+        .dodge-message {
+            position: fixed;
+            font-size: 24px;
+            font-weight: bold;
+            color: #ec407a;
+            pointer-events: none;
+            z-index: 1000;
+            animation: floatUp 1.5s ease-out forwards;
+            text-shadow: 2px 2px 4px rgba(255, 255, 255, 0.8);
+        }
+
+        @keyframes floatUp {
+            0% {
+                opacity: 1;
+                transform: translateY(0) scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: translateY(-100px) scale(1.2);
+            }
+        }
+
+        /* Heart cursor trail */
+        .heart-trail {
+            position: fixed;
+            pointer-events: none;
+            font-size: 16px;
+            animation: heartFade 1s ease-out forwards;
+            z-index: 5;
+        }
+
+        @keyframes heartFade {
+            0% {
+                opacity: 1;
+                transform: scale(1);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(0.5) translateY(-20px);
+            }
+        }
+
+        /* Firework burst effect */
+        .firework {
+            position: absolute;
+            width: 4px;
+            height: 4px;
+            border-radius: 50%;
+            animation: firework-burst 1.5s ease-out forwards;
+        }
+
+        @keyframes firework-burst {
+            0% {
+                transform: translate(0, 0);
+                opacity: 1;
+            }
+
+            100% {
+                transform: translate(var(--tx), var(--ty));
+                opacity: 0;
+            }
+        }
+
+        /* Mobile responsive */
+        @media (max-width: 600px) {
+            .container {
+                padding: 40px 30px;
+                max-width: 90%;
+            }
+
+            h1 {
+                font-size: 28px;
+            }
+
+            .message {
+                font-size: 18px;
+            }
+
+            button {
+                font-size: 20px;
+                padding: 15px 35px;
+            }
+
+            .bear-emoji {
+                font-size: 60px;
+                top: -30px;
+                right: -20px;
+            }
+
+            .dodge-message {
+                font-size: 20px;
+            }
+
+            .photo-gallery {
+                width: 250px;
+                height: 250px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="heart-bg" id="heartBg"></div>
+
+    <div class="container">
+        <div class="bear-emoji">🧸</div>
+        <div id="questionSection">
+            <p class="message">
+                Hey Smallie 🥰
+            </p>
+            <h1>Will You Be My Valentine?</h1>
+            <div class="button-container" id="btnContainer">
+                <button id="yesBtn">Yes! 💖</button>
+                <button id="noBtn">No</button>
+            </div>
+        </div>
+
+        <div class="success-message" id="successMessage">
+            <div class="celebration">🎉💕🎉</div>
+
+            <div class="photo-gallery" id="photoGallery">
+                <div class="photo-slide active">
+                    <img src="photos/IMG_0042.jpg" alt="Us together">
+                </div>
+                <div class="photo-slide">
+                    <img src="photos/IMG_5296.jpg" alt="Us together">
+                </div>
+                <div class="photo-slide">
+                    <img src="photos/IMG_7264.jpg" alt="Us together">
+                </div>
+                <div class="photo-slide">
+                    <img src="photos/IMG_8275.jpg" alt="Us together">
+                </div>
+                <div class="photo-slide">
+                    <img src="photos/IMG_9295.jpg" alt="Us together">
+                </div>
+                <div class="photo-slide">
+                    <img src="photos/IMG_9400.jpg" alt="Us together">
+                </div>
+                <div class="photo-slide">
+                    <video src="photos/IMG_9300.mov" muted playsinline></video>
+                </div>
+            </div>
+
+            <div class="love-message">
+                I'm so lucky to have you in my life! ❤️
+            </div>
+
+
+        </div>
+    </div>
+
+    <audio id="bgMusic" loop preload="auto">
+        <source src="photos/background_music.mp3" type="audio/mpeg">
+        Your browser does not support the audio element.
+    </audio>
+
+    <script>
+        const yesBtn = document.getElementById('yesBtn');
+        const noBtn = document.getElementById('noBtn');
+        const questionSection = document.getElementById('questionSection');
+        const successMessage = document.getElementById('successMessage');
+        const heartBg = document.getElementById('heartBg');
+        const btnContainer = document.getElementById('btnContainer');
+
+        let dodgeCount = 0;
+        const maxDodges = 10;
+        let yesButtonRevealed = false;
+
+        const dodgeMessages = [
+            "Nice try! 😋",
+            "Too slow! 💨",
+            "Missed me! 😜",
+            "You can't catch me! 🏃‍♂️",
+            "Almost got it! 😅",
+            "Nope! 🙅‍♂️",
+            "Still here! 👋",
+            "Try again! 🔄",
+            "So close! 🤏",
+            "Come on! 🥺",
+            "Just click 'Yes'! 💖",
+            "I'm faster! ⚡️"
+        ];
+
+        // Create floating hearts background
+        function createFloatingHearts() {
+            const hearts = ['❤️', '💖', '💕', '💗', '💓'];
+            const container = document.getElementById('heartBg');
+
+            for (let i = 0; i < 15; i++) {
+                const heart = document.createElement('div');
+                heart.className = 'floating-heart';
+                heart.textContent = hearts[Math.floor(Math.random() * hearts.length)];
+                heart.style.left = Math.random() * 100 + 'vw';
+                heart.style.animationDuration = (Math.random() * 3 + 10) + 's'; // 10-13s float time
+                heart.style.animationDelay = -Math.random() * 10 + 's';
+                container.appendChild(heart);
+            }
+        }
+
+        createFloatingHearts();
+
+        // Add heart trail on mouse move
+        document.addEventListener('mousemove', (e) => {
+            if (Math.random() > 0.9) { // Only create sometimes to avoid lag
+                const heart = document.createElement('div');
+                heart.className = 'heart-trail';
+                heart.textContent = '❤️';
+                heart.style.left = e.pageX + 'px';
+                heart.style.top = e.pageY + 'px';
+                document.body.appendChild(heart);
+                setTimeout(() => heart.remove(), 1000);
+            }
+        });
+
+        // Sound Effects using Web Audio API
+        const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+        function playBoopSound() {
+            const oscillator = audioCtx.createOscillator();
+            const gainNode = audioCtx.createGain();
+
+            oscillator.type = 'sine';
+            oscillator.frequency.setValueAtTime(800, audioCtx.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(300, audioCtx.currentTime + 0.1);
+
+            gainNode.gain.setValueAtTime(0.3, audioCtx.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.1);
+
+            oscillator.connect(gainNode);
+            gainNode.connect(audioCtx.destination);
+
+            oscillator.start();
+            oscillator.stop(audioCtx.currentTime + 0.1);
+        }
+
+        function playChimeSound() {
+            const notes = [523.25, 659.25, 783.99]; // C5, E5, G5
+            notes.forEach((note, i) => {
+                setTimeout(() => {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+
+                    oscillator.type = 'sine';
+                    oscillator.frequency.setValueAtTime(note, audioCtx.currentTime);
+
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.5);
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.5);
+                }, i * 150);
+            });
+        }
+
+        function playCelebrationSound() {
+            const notes = [523.25, 659.25, 783.99, 1046.50, 1318.51]; // C major arpeggio
+            notes.forEach((note, i) => {
+                setTimeout(() => {
+                    const oscillator = audioCtx.createOscillator();
+                    const gainNode = audioCtx.createGain();
+
+                    oscillator.type = 'triangle'; // Brighter sound
+                    oscillator.frequency.setValueAtTime(note, audioCtx.currentTime);
+
+                    gainNode.gain.setValueAtTime(0.2, audioCtx.currentTime);
+                    gainNode.gain.linearRampToValueAtTime(0, audioCtx.currentTime + 0.3);
+
+                    oscillator.connect(gainNode);
+                    gainNode.connect(audioCtx.destination);
+
+                    oscillator.start();
+                    oscillator.stop(audioCtx.currentTime + 0.3);
+                }, i * 100);
+            });
+        }
+
+        // Photo slideshow functionality
+        function startPhotoSlideshow() {
+            const slides = document.querySelectorAll('.photo-slide');
+            let currentSlide = 0;
+            let slideInterval;
+
+            function nextSlide() {
+                const currentElement = slides[currentSlide].querySelector('img, video');
+                if (currentElement.tagName === 'VIDEO') {
+                    currentElement.pause();
+                    currentElement.currentTime = 0;
+                }
+
+                slides[currentSlide].classList.remove('active');
+                currentSlide = (currentSlide + 1) % slides.length;
+                slides[currentSlide].classList.add('active');
+
+                const nextElement = slides[currentSlide].querySelector('img, video');
+                if (nextElement.tagName === 'VIDEO') {
+                    clearInterval(slideInterval); // Stop timer
+                    nextElement.play();
+                    nextElement.onended = () => {
+                        slideInterval = setInterval(nextSlide, 3000); // Restart timer
+                        nextSlide();
+                    };
+                }
+            }
+
+            slideInterval = setInterval(nextSlide, 3000); // Change photo every 3 seconds
+        }
+
+        // No button - run away from cursor (keeps working even after Yes appears!)
+        noBtn.addEventListener('mouseenter', (e) => {
+            // Shake animation
+            noBtn.classList.add('shake');
+            setTimeout(() => noBtn.classList.remove('shake'), 300);
+
+            // Play boop sound
+            playBoopSound();
+
+            // Show playful message
+            showDodgeMessage(e.pageX, e.pageY);
+
+            dodgeCount++;
+
+            // After 10 dodges, reveal the Yes button (but No keeps dodging)
+            if (dodgeCount === maxDodges && !yesButtonRevealed) {
+                revealYesButton();
+                yesButtonRevealed = true;
+            }
+
+            // Continue dodging regardless of whether Yes is visible
+            const container = btnContainer.getBoundingClientRect();
+            const button = noBtn.getBoundingClientRect();
+
+            // Calculate safe boundaries (keeping button inside container area)
+            const maxX = window.innerWidth - button.width - 100;
+            const maxY = window.innerHeight - button.height - 100;
+            const minX = 100;
+            const minY = 100;
+
+            // Generate random position away from current position
+            let newX = Math.random() * (maxX - minX) + minX;
+            let newY = Math.random() * (maxY - minY) + minY;
+
+            // Ensure new position is far enough from current position
+            const currentX = button.left;
+            const currentY = button.top;
+            const distance = Math.sqrt(Math.pow(newX - currentX, 2) + Math.pow(newY - currentY, 2));
+
+            if (distance < 200) {
+                newX = currentX + (newX > currentX ? 250 : -250);
+                newY = currentY + (newY > currentY ? 250 : -250);
+            }
+
+            // Clamp to boundaries
+            newX = Math.max(minX, Math.min(maxX, newX));
+            newY = Math.max(minY, Math.min(maxY, newY));
+
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        });
+
+        // Mobile touch support for No button
+        noBtn.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+
+            // Trigger the same behavior as mouseenter
+            noBtn.classList.add('shake');
+            setTimeout(() => noBtn.classList.remove('shake'), 300);
+
+            playBoopSound();
+
+            const touch = e.touches[0];
+            showDodgeMessage(touch.pageX, touch.pageY);
+
+            dodgeCount++;
+
+            if (dodgeCount === maxDodges && !yesButtonRevealed) {
+                revealYesButton();
+                yesButtonRevealed = true;
+            }
+
+            const button = noBtn.getBoundingClientRect();
+            const maxX = window.innerWidth - button.width - 50;
+            const maxY = window.innerHeight - button.height - 50;
+            const minX = 50;
+            const minY = 50;
+
+            let newX = Math.random() * (maxX - minX) + minX;
+            let newY = Math.random() * (maxY - minY) + minY;
+
+            newX = Math.max(minX, Math.min(maxX, newX));
+            newY = Math.max(minY, Math.min(maxY, newY));
+
+            noBtn.style.position = 'fixed';
+            noBtn.style.left = newX + 'px';
+            noBtn.style.top = newY + 'px';
+        });
+
+        // Show playful dodge message
+        function showDodgeMessage(x, y) {
+            const message = document.createElement('div');
+            message.className = 'dodge-message';
+            message.textContent = dodgeMessages[Math.floor(Math.random() * dodgeMessages.length)];
+            message.style.left = x + 'px';
+            message.style.top = y + 'px';
+            document.body.appendChild(message);
+
+            setTimeout(() => message.remove(), 1500);
+        }
+
+        // Yes button - show success
+        yesBtn.addEventListener('click', () => {
+            playCelebrationSound();
+            document.getElementById('bgMusic').play().catch(e => console.log("Audio play failed:", e)); // Catch autoplay errors
+            questionSection.style.display = 'none';
+            successMessage.classList.add('show');
+            createBigConfetti();
+            startPhotoSlideshow();
+        });
+        // Reveal Yes button with mini confetti
+        function revealYesButton() {
+            playChimeSound();
+            yesBtn.classList.add('show');
+            createMiniConfetti();
+        }
+
+        // Create minimal confetti effect when Yes appears (120 pieces!)
+        function createMiniConfetti() {
+            const colors = ['#f48fb1', '#ec407a', '#f8bbd0', '#e1bee7', '#ce93d8'];
+            const yesBtnRect = yesBtn.getBoundingClientRect();
+            const centerX = yesBtnRect.left + yesBtnRect.width / 2;
+            const centerY = yesBtnRect.top + yesBtnRect.height / 2;
+
+            for (let i = 0; i < 120; i++) {
+                setTimeout(() => {
+                    const confetti = document.createElement('div');
+                    confetti.className = 'mini-confetti';
+                    confetti.style.left = centerX + 'px';
+                    confetti.style.top = centerY + 'px';
+                    confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                    // Random x offset for spread
+                    const xOffset = (Math.random() - 0.5) * 300;
+                    confetti.style.setProperty('--x-offset', xOffset + 'px');
+
+                    document.body.appendChild(confetti);
+
+                    setTimeout(() => confetti.remove(), 1500);
+                }, i * 8);
+            }
+        }
+
+        // Create BIG confetti explosion effect (1,200 pieces + FIREWORKS!)
+        function createBigConfetti() {
+            const colors = ['#f48fb1', '#ec407a', '#f8bbd0', '#e1bee7', '#ce93d8', '#ffd54f', '#ff8a65'];
+
+            // Create massive waves of confetti raining down
+            for (let wave = 0; wave < 5; wave++) {
+                setTimeout(() => {
+                    for (let i = 0; i < 240; i++) {
+                        setTimeout(() => {
+                            const confetti = document.createElement('div');
+                            confetti.className = 'confetti';
+                            confetti.style.left = Math.random() * 100 + '%';
+                            confetti.style.top = '-10px';
+                            confetti.style.background = colors[Math.floor(Math.random() * colors.length)];
+                            confetti.style.width = (Math.random() * 12 + 6) + 'px';
+                            confetti.style.height = (Math.random() * 12 + 6) + 'px';
+                            confetti.style.animationDuration = (Math.random() * 2 + 2.5) + 's';
+                            document.body.appendChild(confetti);
+
+                            setTimeout(() => confetti.remove(), 5000);
+                        }, i * 10);
+                    }
+                }, wave * 400);
+            }
+
+            // Add firework bursts at random positions
+            for (let burst = 0; burst < 15; burst++) {
+                setTimeout(() => {
+                    createFireworkBurst(
+                        Math.random() * window.innerWidth,
+                        Math.random() * window.innerHeight * 0.6
+                    );
+                }, burst * 200);
+            }
+        }
+
+        // Create a single firework burst at given position
+        function createFireworkBurst(x, y) {
+            const colors = ['#f48fb1', '#ec407a', '#ffd54f', '#ff8a65', '#e1bee7'];
+            const particles = 30;
+
+            for (let i = 0; i < particles; i++) {
+                const firework = document.createElement('div');
+                firework.className = 'firework';
+                firework.style.left = x + 'px';
+                firework.style.top = y + 'px';
+                firework.style.background = colors[Math.floor(Math.random() * colors.length)];
+
+                // Random direction for burst
+                const angle = (Math.PI * 2 * i) / particles;
+                const velocity = Math.random() * 100 + 80;
+                const tx = Math.cos(angle) * velocity;
+                const ty = Math.sin(angle) * velocity;
+
+                firework.style.setProperty('--tx', tx + 'px');
+                firework.style.setProperty('--ty', ty + 'px');
+
+                document.body.appendChild(firework);
+
+                setTimeout(() => firework.remove(), 1500);
+            }
+        }
+    </script>
+</body>
+
+</html>
