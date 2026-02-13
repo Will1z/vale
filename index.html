@@ -221,6 +221,51 @@
             }
         }
 
+        /* Common style for dodging buttons */
+        .dodge-btn {
+            background: linear-gradient(135deg, #f8bbd0, #f48fb1);
+            color: #d81b60;
+            transition: all 0.15s ease;
+        }
+
+        .dodge-btn:hover {
+            background: linear-gradient(135deg, #f48fb1, #f8bbd0);
+        }
+
+        /* Grand Yes Button */
+        #grandYesBtn {
+            background: linear-gradient(135deg, #ffd54f, #ec407a, #f48fb1);
+            background-size: 200% 200%;
+            color: white;
+            font-size: 32px;
+            padding: 25px 60px;
+            position: absolute;
+            display: none;
+            z-index: 100;
+            box-shadow: 0 0 30px rgba(255, 213, 79, 0.6), 0 10px 30px rgba(236, 64, 122, 0.4);
+            animation: gradientMove 3s ease infinite, gentleGlow 2s ease-in-out infinite, fadeInScale 0.6s ease-out forwards;
+        }
+
+        @keyframes gradientMove {
+            0% {
+                background-position: 0% 50%;
+            }
+
+            50% {
+                background-position: 100% 50%;
+            }
+
+            100% {
+                background-position: 0% 50%;
+            }
+        }
+
+        .fade-out {
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease;
+        }
+
         /* Success state */
         .success-message {
             display: none;
@@ -440,8 +485,9 @@
             </p>
             <h1>Will You Be My Valentine?</h1>
             <div class="button-container" id="btnContainer">
-                <button id="yesBtn">Yes! 💖</button>
-                <button id="noBtn">No</button>
+                <button id="yesBtn" class="dodge-btn">Yes 💖</button>
+                <button id="noBtn" class="dodge-btn">No</button>
+                <button id="grandYesBtn">Yes! 💕</button>
             </div>
         </div>
 
@@ -488,6 +534,7 @@
     <script>
         const yesBtn = document.getElementById('yesBtn');
         const noBtn = document.getElementById('noBtn');
+        const grandYesBtn = document.getElementById('grandYesBtn');
         const questionSection = document.getElementById('questionSection');
         const successMessage = document.getElementById('successMessage');
         const heartBg = document.getElementById('heartBg');
@@ -495,21 +542,19 @@
 
         let dodgeCount = 0;
         const maxDodges = 10;
-        let yesButtonRevealed = false;
+        let grandYesRevealed = false;
 
         const dodgeMessages = [
-            "Nice try! 😋",
-            "Too slow! 💨",
-            "Missed me! 😜",
-            "You can't catch me! 🏃‍♂️",
-            "Almost got it! 😅",
-            "Nope! 🙅‍♂️",
-            "Still here! 👋",
-            "Try again! 🔄",
-            "So close! 🤏",
-            "Come on! 🥺",
-            "Just click 'Yes'! 💖",
-            "I'm faster! ⚡️"
+            "Not so fast! 😄",
+            "Try again! 💕",
+            "Almost! 😜",
+            "Keep going! 💖",
+            "Can't catch me! 💨",
+            "Wrong one! 😉",
+            "Other button! 🙈",
+            "Getting close! 🔥",
+            "One more try! ✨",
+            "You got this! 💪"
         ];
 
         // Create floating hearts background
@@ -639,95 +684,104 @@
             slideInterval = setInterval(nextSlide, 3000); // Change photo every 3 seconds
         }
 
-        // No button - run away from cursor (keeps working even after Yes appears!)
-        noBtn.addEventListener('mouseenter', (e) => {
-            // Shake animation
-            noBtn.classList.add('shake');
-            setTimeout(() => noBtn.classList.remove('shake'), 300);
+        // Shared dodge logic for both initial buttons
+        function makeButtonDodge(button) {
+            const handleDodge = (e) => {
+                if (grandYesRevealed) return; // Stop dodging if game over
 
-            // Play boop sound
-            playBoopSound();
+                e.preventDefault(); // Prevent click if possible
 
-            // Show playful message
-            showDodgeMessage(e.pageX, e.pageY);
+                // Shake animation
+                button.classList.add('shake');
+                setTimeout(() => button.classList.remove('shake'), 300);
 
-            dodgeCount++;
+                // Play boop sound
+                playBoopSound();
 
-            // After 10 dodges, reveal the Yes button (but No keeps dodging)
-            if (dodgeCount === maxDodges && !yesButtonRevealed) {
-                revealYesButton();
-                yesButtonRevealed = true;
-            }
+                // Show playful message
+                const x = e.type.includes('touch') ? e.touches[0].pageX : e.pageX;
+                const y = e.type.includes('touch') ? e.touches[0].pageY : e.pageY;
+                showDodgeMessage(x, y);
 
-            // Continue dodging regardless of whether Yes is visible
-            const container = btnContainer.getBoundingClientRect();
-            const button = noBtn.getBoundingClientRect();
+                dodgeCount++;
 
-            // Calculate safe boundaries (keeping button inside container area)
-            const maxX = window.innerWidth - button.width - 100;
-            const maxY = window.innerHeight - button.height - 100;
-            const minX = 100;
-            const minY = 100;
+                // After 10 dodges, reveal the Grand Yes button
+                if (dodgeCount >= maxDodges && !grandYesRevealed) {
+                    revealGrandYes();
+                    grandYesRevealed = true;
+                    return;
+                }
 
-            // Generate random position away from current position
-            let newX = Math.random() * (maxX - minX) + minX;
-            let newY = Math.random() * (maxY - minY) + minY;
+                // Calculate safe boundaries
+                const buttonRect = button.getBoundingClientRect();
+                const maxX = window.innerWidth - buttonRect.width - 50;
+                const maxY = window.innerHeight - buttonRect.height - 50;
+                const minX = 50;
+                const minY = 50;
 
-            // Ensure new position is far enough from current position
-            const currentX = button.left;
-            const currentY = button.top;
-            const distance = Math.sqrt(Math.pow(newX - currentX, 2) + Math.pow(newY - currentY, 2));
+                // Move button to random position
+                let newX = Math.random() * (maxX - minX) + minX;
+                let newY = Math.random() * (maxY - minY) + minY;
 
-            if (distance < 200) {
-                newX = currentX + (newX > currentX ? 250 : -250);
-                newY = currentY + (newY > currentY ? 250 : -250);
-            }
+                // Ensure it moves far enough
+                const currentX = buttonRect.left;
+                const currentY = buttonRect.top;
+                const distance = Math.sqrt(Math.pow(newX - currentX, 2) + Math.pow(newY - currentY, 2));
 
-            // Clamp to boundaries
-            newX = Math.max(minX, Math.min(maxX, newX));
-            newY = Math.max(minY, Math.min(maxY, newY));
+                if (distance < 200) {
+                    newX = currentX + (newX > currentX ? 250 : -250);
+                    newY = currentY + (newY > currentY ? 250 : -250);
+                }
 
-            noBtn.style.position = 'fixed';
-            noBtn.style.left = newX + 'px';
-            noBtn.style.top = newY + 'px';
+                // Clamp to window
+                newX = Math.max(minX, Math.min(maxX, newX));
+                newY = Math.max(minY, Math.min(maxY, newY));
+
+                button.style.position = 'fixed';
+                button.style.left = newX + 'px';
+                button.style.top = newY + 'px';
+            };
+
+            button.addEventListener('mouseenter', handleDodge);
+            button.addEventListener('touchstart', handleDodge);
+            button.addEventListener('click', handleDodge); // Catch clicks too!
+        }
+
+        // Apply dodge logic to both initial buttons
+        makeButtonDodge(yesBtn);
+        makeButtonDodge(noBtn);
+
+        // GRAND YES button - show success
+        grandYesBtn.addEventListener('click', () => {
+            playCelebrationSound();
+            document.getElementById('bgMusic').play().catch(e => console.log("Audio play failed:", e));
+            questionSection.style.display = 'none';
+            successMessage.classList.add('show');
+            createBigConfetti();
+            startPhotoSlideshow();
         });
 
-        // Mobile touch support for No button
-        noBtn.addEventListener('touchstart', (e) => {
-            e.preventDefault();
+        // Reveal Grand Yes button
+        function revealGrandYes() {
+            playChimeSound();
 
-            // Trigger the same behavior as mouseenter
-            noBtn.classList.add('shake');
-            setTimeout(() => noBtn.classList.remove('shake'), 300);
+            // Fade out old buttons
+            yesBtn.classList.add('fade-out');
+            noBtn.classList.add('fade-out');
 
-            playBoopSound();
+            // Show Grand Yes after a short delay
+            setTimeout(() => {
+                yesBtn.style.display = 'none';
+                noBtn.style.display = 'none';
+                grandYesBtn.style.display = 'block';
+                // Center it
+                grandYesBtn.style.position = 'relative'; // Reset fixed positioning
+                grandYesBtn.style.left = 'auto';
+                grandYesBtn.style.top = 'auto';
 
-            const touch = e.touches[0];
-            showDodgeMessage(touch.pageX, touch.pageY);
-
-            dodgeCount++;
-
-            if (dodgeCount === maxDodges && !yesButtonRevealed) {
-                revealYesButton();
-                yesButtonRevealed = true;
-            }
-
-            const button = noBtn.getBoundingClientRect();
-            const maxX = window.innerWidth - button.width - 50;
-            const maxY = window.innerHeight - button.height - 50;
-            const minX = 50;
-            const minY = 50;
-
-            let newX = Math.random() * (maxX - minX) + minX;
-            let newY = Math.random() * (maxY - minY) + minY;
-
-            newX = Math.max(minX, Math.min(maxX, newX));
-            newY = Math.max(minY, Math.min(maxY, newY));
-
-            noBtn.style.position = 'fixed';
-            noBtn.style.left = newX + 'px';
-            noBtn.style.top = newY + 'px';
-        });
+                createMiniConfetti();
+            }, 500);
+        }
 
         // Show playful dodge message
         function showDodgeMessage(x, y) {
@@ -741,26 +795,10 @@
             setTimeout(() => message.remove(), 1500);
         }
 
-        // Yes button - show success
-        yesBtn.addEventListener('click', () => {
-            playCelebrationSound();
-            document.getElementById('bgMusic').play().catch(e => console.log("Audio play failed:", e)); // Catch autoplay errors
-            questionSection.style.display = 'none';
-            successMessage.classList.add('show');
-            createBigConfetti();
-            startPhotoSlideshow();
-        });
-        // Reveal Yes button with mini confetti
-        function revealYesButton() {
-            playChimeSound();
-            yesBtn.classList.add('show');
-            createMiniConfetti();
-        }
-
-        // Create minimal confetti effect when Yes appears (120 pieces!)
+        // Create minimal confetti effect when Grand Yes appears
         function createMiniConfetti() {
             const colors = ['#f48fb1', '#ec407a', '#f8bbd0', '#e1bee7', '#ce93d8'];
-            const yesBtnRect = yesBtn.getBoundingClientRect();
+            const yesBtnRect = grandYesBtn.getBoundingClientRect();
             const centerX = yesBtnRect.left + yesBtnRect.width / 2;
             const centerY = yesBtnRect.top + yesBtnRect.height / 2;
 
